@@ -180,52 +180,84 @@ const BookingForm = () => {
     }
   };
 
-  // Fetch slots
-  useEffect(() => {
-    const fetchSlotConfig = async () => {
-      try {
-        const data = await getSlotConfig();
-        const map = {};
-        data.forEach(({ date, slots }) => {
-          map[date] = slots;
+ // Fetch slots - Only show specific time slots
+useEffect(() => {
+  const fetchSlotConfig = async () => {
+    try {
+      const data = await getSlotConfig();
+      const map = {};
+      
+      // Define the exact time slots you want to show
+      const allowedTimeSlots = [
+        "10:00-11:00 PM",  // First preferred slot
+        "8:30-9:30 PM"     // Second preferred slot (exists in your data)
+      ];
+      
+      data.forEach(({ date, slots }) => {
+        // Filter slots to only include the allowed time slots
+        const filteredSlots = slots.filter(slot => {
+          // Direct string comparison for exact matching
+          return allowedTimeSlots.includes(slot.time);
         });
-        setDateSlotMap(map);
+        
+        // Only add to map if there are filtered slots available
+        if (filteredSlots.length > 0) {
+          map[date] = filteredSlots;
+          console.log(`📅 ${date}: Found ${filteredSlots.length} allowed slots:`, 
+            filteredSlots.map(s => `${s.time} (${s.counselorEmail})`));
+        }
+      });
+      
+      console.log(`🎯 Filtered calendar shows ${Object.keys(map).length} dates with allowed slots`);
+      setDateSlotMap(map);
 
-        const now = new Date();
-        now.setSeconds(0, 0);
+      const now = new Date();
+      now.setSeconds(0, 0);
 
-        const sortedDates = Object.keys(map).sort();
-        for (let dateStr of sortedDates) {
-          const slots = map[dateStr];
-          for (let slot of slots) {
-            try {
-              const [time, meridian] = slot.time.split(" ");
-              let [hours, minutes] = time.split(":").map(Number);
-              if (meridian === "PM" && hours !== 12) hours += 12;
-              if (meridian === "AM" && hours === 12) hours = 0;
-
-              const slotDate = new Date(`${dateStr}T${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`);
-
-              if (!isNaN(slotDate.getTime()) && slotDate > now) {
-                const selectedDateObj = new Date(dateStr);
-                setSelectedDate(selectedDateObj);
-                setSelectedTime("");
-                return;
-              }
-            } catch (error) {
-              console.warn('Error processing slot:', slot, error);
-              continue;
+      const sortedDates = Object.keys(map).sort();
+      for (let dateStr of sortedDates) {
+        const slots = map[dateStr];
+        for (let slot of slots) {
+          try {
+            // Handle both 12-hour format parsing
+            let timeStr = slot.time;
+            let meridian = "PM"; // Default since both your slots are PM
+            
+            if (timeStr.includes(" ")) {
+              [timeStr, meridian] = timeStr.split(" ");
             }
+            
+            // Extract start time from range (e.g., "8:30-9:30" -> "8:30")
+            const startTime = timeStr.split("-")[0];
+            let [hours, minutes] = startTime.split(":").map(Number);
+            
+            if (meridian === "PM" && hours !== 12) hours += 12;
+            if (meridian === "AM" && hours === 12) hours = 0;
+
+            const slotDate = new Date(`${dateStr}T${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`);
+
+            if (!isNaN(slotDate.getTime()) && slotDate > now) {
+              const selectedDateObj = new Date(dateStr);
+              setSelectedDate(selectedDateObj);
+              setSelectedTime("");
+              console.log(`✅ Auto-selected first available slot: ${dateStr} at ${slot.time}`);
+              return;
+            }
+          } catch (error) {
+            console.warn('Error processing slot:', slot, error);
+            continue;
           }
         }
-        setSelectedDate(null);
-        setSelectedTime("");
-      } catch (err) {
-        console.error("❌ Failed to fetch slots:", err);
       }
-    };
-    fetchSlotConfig();
-  }, []);
+      setSelectedDate(null);
+      setSelectedTime("");
+      console.log(`ℹ️ No future slots available from allowed time slots`);
+    } catch (err) {
+      console.error("❌ Failed to fetch slots:", err);
+    }
+  };
+  fetchSlotConfig();
+}, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
