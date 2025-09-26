@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { format } from "date-fns";
 
 const DateTimeSelector = ({
@@ -43,65 +43,95 @@ const DateTimeSelector = ({
 
     // South Asia
     { value: "Asia/Kolkata", label: "🇮🇳 India", name: "Kolkata" },
-    { value: "Asia/Karachi", label: "🇵🇰 Pakistan", name: "Karachi" },
-    { value: "Asia/Dhaka", label: "🇧🇩 Bangladesh", name: "Dhaka" },
+     { value: "Asia/Dhaka", label: "🇧🇩 Bangladesh", name: "Dhaka" },
     { value: "Asia/Colombo", label: "🇱🇰 Sri Lanka", name: "Colombo" },
     { value: "Asia/Kathmandu", label: "🇳🇵 Nepal", name: "Kathmandu" },
     { value: "Asia/Thimphu", label: "🇧🇹 Bhutan", name: "Thimphu" },
     { value: "Asia/Rangoon", label: "🇲🇲 Myanmar", name: "Yangon" },
-    { value: "Asia/Kabul", label: "🇦🇫 Afghanistan", name: "Kabul" },
-
+ 
     // Central Asia
     { value: "Asia/Tashkent", label: "🇺🇿 Uzbekistan", name: "Tashkent" },
-    { value: "Asia/Almaty", label: "🇰🇿 Kazakhstan", name: "Almaty" },
-    { value: "Asia/Bishkek", label: "🇰🇬 Kyrgyzstan", name: "Bishkek" },
-    { value: "Asia/Dushanbe", label: "🇹🇯 Tajikistan", name: "Dushanbe" },
-    { value: "Asia/Ashgabat", label: "🇹🇲 Turkmenistan", name: "Ashgabat" },
-    { value: "Asia/Baku", label: "🇦🇿 Azerbaijan", name: "Baku" },
-    { value: "Asia/Tbilisi", label: "🇬🇪 Georgia", name: "Tbilisi" },
-    { value: "Asia/Yerevan", label: "🇦🇲 Armenia", name: "Yerevan" },
-
-    // Southeast Asia
-    { value: "Asia/Singapore", label: "🇸🇬 Singapore", name: "Singapore" },
-    { value: "Asia/Bangkok", label: "🇹🇭 Thailand", name: "Bangkok" },
-    { value: "Asia/Ho_Chi_Minh", label: "🇻🇳 Vietnam", name: "Ho Chi Minh" },
-    { value: "Asia/Manila", label: "🇵🇭 Philippines", name: "Manila" },
-    { value: "Asia/Jakarta", label: "🇮🇩 Indonesia (West)", name: "Jakarta" },
-    { value: "Asia/Makassar", label: "🇮🇩 Indonesia (Central)", name: "Makassar" },
-    { value: "Asia/Jayapura", label: "🇮🇩 Indonesia (East)", name: "Jayapura" },
-    { value: "Asia/Kuala_Lumpur", label: "🇲🇾 Malaysia", name: "Kuala Lumpur" },
-    { value: "Asia/Brunei", label: "🇧🇳 Brunei", name: "Bandar Seri Begawan" },
-    { value: "Asia/Vientiane", label: "🇱🇦 Laos", name: "Vientiane" },
-    { value: "Asia/Phnom_Penh", label: "🇰🇭 Cambodia", name: "Phnom Penh" },
-    { value: "Asia/Dili", label: "🇹🇱 East Timor", name: "Dili" },
-
-    // East Asia
-    { value: "Asia/Tokyo", label: "🇯🇵 Japan", name: "Tokyo" },
-    { value: "Asia/Seoul", label: "🇰🇷 South Korea", name: "Seoul" },
-    { value: "Asia/Pyongyang", label: "🇰🇵 North Korea", name: "Pyongyang" },
-    { value: "Asia/Shanghai", label: "🇨🇳 China", name: "Shanghai" },
-    { value: "Asia/Hong_Kong", label: "🇭🇰 Hong Kong", name: "Hong Kong" },
-    { value: "Asia/Taipei", label: "🇹🇼 Taiwan", name: "Taipei" },
-    { value: "Asia/Macau", label: "🇲🇴 Macau", name: "Macau" },
-    { value: "Asia/Ulaanbaatar", label: "🇲🇳 Mongolia", name: "Ulaanbaatar" },
-
-    // Russian Asia
-    { value: "Asia/Yekaterinburg", label: "🇷🇺 Russia (Ural)", name: "Yekaterinburg" },
-    { value: "Asia/Novosibirsk", label: "🇷🇺 Russia (Siberia)", name: "Novosibirsk" },
-    { value: "Asia/Krasnoyarsk", label: "🇷🇺 Russia (Krasnoyarsk)", name: "Krasnoyarsk" },
-    { value: "Asia/Irkutsk", label: "🇷🇺 Russia (Irkutsk)", name: "Irkutsk" },
-    { value: "Asia/Vladivostok", label: "🇷🇺 Russia (Far East)", name: "Vladivostok" },
+  
 
     // Popular International (for reference)
-    { value: "America/New_York", label: "🇺🇸 New York", name: "New York" },
-    { value: "Europe/London", label: "🇬🇧 London", name: "London" },
-    { value: "Europe/Paris", label: "🇫🇷 Paris", name: "Paris" },
-    { value: "Africa/Cairo", label: "🇪🇬 Egypt", name: "Cairo" }
+     { value: "Europe/London", label: "🇬🇧 London", name: "London" },
+     { value: "Africa/Cairo", label: "🇪🇬 E  gypt", name: "Cairo" }
   ];
 
   // Get current timezone info
   const currentTimezoneInfo = timezoneOptions.find(tz => tz.value === timezone);
   const timezoneOffset = getTimezoneOffset(timezone);
+
+  // Function to convert IST time to user's selected timezone
+  const convertISTToUserTimezone = (istTimeString) => {
+    try {
+      if (!istTimeString || !istTimeString.includes('-')) {
+        return istTimeString;
+      }
+
+      const [startTime, endTime] = istTimeString.split('-').map(t => t.trim());
+      
+      const convertSingleTime = (timeStr) => {
+        // Parse IST time
+        const [time, meridian] = timeStr.split(' ');
+        let [hours, minutes] = time.split(':').map(Number);
+        
+        // Convert to 24-hour format
+        if (meridian === 'PM' && hours !== 12) hours += 12;
+        if (meridian === 'AM' && hours === 12) hours = 0;
+        
+        // Create date object in IST
+        const today = new Date();
+        const istDate = new Date();
+        istDate.setHours(hours, minutes, 0, 0);
+        
+        // Get IST time as base
+        const istTime = istDate.toLocaleString('en-US', {
+          timeZone: 'Asia/Kolkata',
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        // Convert to user's timezone
+        const userTime = istDate.toLocaleString('en-US', {
+          timeZone: timezone,
+          hour12: timeFormat === '12h',
+          hour: timeFormat === '12h' ? 'numeric' : '2-digit',
+          minute: '2-digit'
+        });
+        
+        return userTime;
+      };
+
+      const convertedStart = convertSingleTime(startTime);
+      const convertedEnd = convertSingleTime(endTime);
+      
+      return `${convertedStart}-${convertedEnd}`;
+    } catch (error) {
+      console.error('Error converting time:', error);
+      return istTimeString; // Return original if conversion fails
+    }
+  };
+
+  // Convert time slots to user's timezone
+  const convertedTimeSlots = useMemo(() => {
+    if (!selectedDate || !dateSlotMap[format(selectedDate, "yyyy-MM-dd")]) {
+      return [];
+    }
+
+    const slots = dateSlotMap[format(selectedDate, "yyyy-MM-dd")];
+    const uniqueTimes = [...new Set(slots.map((s) => s.time))];
+    
+    return uniqueTimes.map(istTime => {
+      const convertedTime = convertISTToUserTimezone(istTime);
+      return {
+        originalTime: istTime, // Keep original IST time for backend
+        displayTime: convertedTime, // Show converted time to user
+        isValid: convertedTime !== istTime || timezone === 'Asia/Kolkata'
+      };
+    }).filter(slot => slot.isValid);
+  }, [selectedDate, dateSlotMap, timezone, timeFormat]);
 
   // Handle timezone change with validation
   const handleTimezoneChange = (newTimezone) => {
@@ -109,10 +139,41 @@ const DateTimeSelector = ({
       // Test if timezone is valid
       new Intl.DateTimeFormat('en-US', { timeZone: newTimezone });
       setTimezone(newTimezone);
+      // Reset selected time when timezone changes
+      setSelectedTime("");
     } catch (error) {
       console.error('Invalid timezone selected:', newTimezone, error);
       // Keep current timezone if invalid
     }
+  };
+
+  // Handle time selection
+  const handleTimeSelection = (slot) => {
+    if (selectedDate && slot) {
+      // Store the original IST time for backend, but show converted time to user
+      setSelectedTime(slot.originalTime); // This goes to backend
+      setShowForm(true);
+    }
+  };
+
+  // Get timezone abbreviation
+  const getTimezoneAbbr = (tz) => {
+    const abbreviations = {
+      'Asia/Dubai': 'GST',
+      'Asia/Riyadh': 'AST',
+      'Asia/Kolkata': 'IST',
+      'Asia/Kuwait': 'AST',
+      'Asia/Qatar': 'AST',
+      'Asia/Bahrain': 'AST',
+      'Asia/Muscat': 'GST',
+      'Asia/Tehran': 'IRST',
+      'Asia/Baghdad': 'AST',
+      'America/New_York': 'EST/EDT',
+      'Europe/London': 'GMT/BST',
+      'Asia/Singapore': 'SGT',
+      'Asia/Tokyo': 'JST'
+    };
+    return abbreviations[tz] || tz.split('/')[1] || 'Local';
   };
 
   return (
@@ -136,14 +197,14 @@ const DateTimeSelector = ({
 
       {/* Calendar Section */}
       <div className="w-full md:w-1/3">
-        <div className="flex flex-row sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
           <h3 className="text-sm md:text-base font-bold">Select a Date & Time</h3>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             {/* Timezone Selector */}
             <select
               value={timezone}
               onChange={(e) => handleTimezoneChange(e.target.value)}
-              className="w-full sm:w-auto bg-black border border-gray-700 px-3 py-2 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full sm:w-auto min-w-[200px] bg-black border border-gray-700 px-3 py-2 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
               {timezoneOptions.map((tz) => (
                 <option key={tz.value} value={tz.value}>
@@ -151,15 +212,15 @@ const DateTimeSelector = ({
                 </option>
               ))}
             </select>
-
-
           </div>
         </div>
 
-
         {/* Current timezone display */}
-        <div className="mb-3 text-xs text-gray-400">
-          Current timezone: {currentTimezoneInfo?.name || timezone} ({timezoneOffset})
+        <div className="mb-3 p-3 bg-gray-800 rounded-lg">
+          <div className="text-xs text-gray-400">Your selected timezone:</div>
+          <div className="text-sm font-semibold text-blue-400">
+            {currentTimezoneInfo?.name || timezone} ({getTimezoneAbbr(timezone)}) {timezoneOffset}
+          </div>
         </div>
 
         <div className="flex justify-between items-center mb-3">
@@ -223,13 +284,16 @@ const DateTimeSelector = ({
                 key={formattedDate}
                 disabled={!isClickable}
                 onClick={() => {
-                  if (isClickable) setSelectedDate(day);
+                  if (isClickable) {
+                    setSelectedDate(day);
+                    setSelectedTime(""); // Reset time when date changes
+                  }
                 }}
                 className={`text-sm font-medium px-4 py-2 rounded-xl transition-all duration-200
                   ${isSelected
                     ? "bg-white text-black font-bold"
                     : isClickable
-                      ? "bg-white-700 text-white hover:bg-white hover:text-black border border-green-500"
+                      ? "bg-gray-800 text-white hover:bg-white hover:text-black border border-green-500"
                       : "bg-gray-900 text-gray-600 cursor-not-allowed opacity-50"
                   }`}
               >
@@ -245,49 +309,84 @@ const DateTimeSelector = ({
         <div className="mb-4 text-base text-gray-400">
           Selected:{" "}
           <span className="text-white font-semibold">
-            {selectedDate?.toLocaleDateString("en-GB")} at {selectedTime}
+            {selectedDate?.toLocaleDateString("en-GB")}
+            {selectedTime && (
+              <span className="ml-1 text-blue-400">
+                at {convertISTToUserTimezone(selectedTime)}
+              </span>
+            )}
           </span>
         </div>
 
-        <div className="flex justify-between mb-3 text-xs text-gray-400">
-          <span className={`px-3 py-1 rounded-full ${timeFormat === '12h' ? 'bg-blue-600' : 'bg-gray-800'}`}>
+        {/* Time format toggle */}
+        <div className="flex justify-between mb-3 text-xs">
+          <button
+            onClick={() => setTimeFormat('12h')}
+            className={`px-3 py-1 rounded-full transition-all ${
+              timeFormat === '12h' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'
+            }`}
+          >
             12h
-          </span>
-          <span className={`px-3 py-1 rounded-full ${timeFormat === '24h' ? 'bg-blue-600' : 'bg-gray-800'}`}>
+          </button>
+          <button
+            onClick={() => setTimeFormat('24h')}
+            className={`px-3 py-1 rounded-full transition-all ${
+              timeFormat === '24h' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'
+            }`}
+          >
             24h
-          </span>
+          </button>
         </div>
 
         <div className="space-y-2 flex items-center flex-col">
-          {timeSlots && timeSlots.length > 0 ? (
-            timeSlots.map((slot, index) => (
+          {convertedTimeSlots && convertedTimeSlots.length > 0 ? (
+            convertedTimeSlots.map((slot, index) => (
               <button
-                key={`${slot}-${index}`} // Use index as backup key
-                onClick={() => {
-                  if (selectedDate && slot) {
-                    setSelectedTime(slot);
-                    setShowForm(true);
-                  }
-                }}
-                className={`py-2 w-full text-sm rounded-md border border-gray-700 transition-all flex justify-center items-center gap-2
+                key={`${slot.originalTime}-${index}`}
+                onClick={() => handleTimeSelection(slot)}
+                className={`py-3 w-full text-sm rounded-md border border-gray-700 transition-all flex justify-center items-center gap-2 hover:border-blue-500
                   ${selectedDate && slot
-                    ? selectedTime === slot
-                      ? "bg-blue-600 text-white"
+                    ? selectedTime === slot.originalTime
+                      ? "bg-blue-600 text-white border-blue-600"
                       : "bg-black text-white hover:bg-blue-700"
                     : "opacity-50 cursor-not-allowed"
                   }`}
               >
                 <span className="w-2 h-2 bg-green-400 rounded-full inline-block"></span>
-                {slot}
+                <div className="flex flex-col">
+                  <span className="font-semibold">{slot.displayTime}</span>
+                  {timezone !== 'Asia/Kolkata' && (
+                    <span className="text-xs text-gray-400">
+                      ({slot.originalTime} IST)
+                    </span>
+                  )}
+                </div>
               </button>
             ))
           ) : (
             <div className="border border-red-600 text-red-500 px-4 py-6 rounded text-center text-sm">
-              <p>No slots available on any upcoming day.</p>
-              <p className="text-xs mt-1">Times shown in {currentTimezoneInfo?.name || timezone} timezone</p>
+              <p>No slots available for selected date.</p>
+              <p className="text-xs mt-2 text-gray-400">
+                Times will be shown in {getTimezoneAbbr(timezone)} timezone
+              </p>
             </div>
           )}
         </div>
+
+        {/* Timezone info footer */}
+        {selectedDate && convertedTimeSlots.length > 0 && (
+          <div className="mt-4 p-3 bg-blue-900 bg-opacity-30 rounded-lg text-xs">
+            <div className="flex items-center gap-2 text-blue-300">
+              <span>🌍</span>
+              <span>Times shown in your timezone: {getTimezoneAbbr(timezone)}</span>
+            </div>
+            {timezone !== 'Asia/Kolkata' && (
+              <div className="text-gray-400 mt-1">
+                Original IST times shown in parentheses
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
