@@ -25,79 +25,79 @@ const DateTimeSelector = ({
   const localToday = new Date();
   localToday.setHours(0, 0, 0, 0);
 
-const timezoneOptions = [
-  // Middle East Timezones
-  { value: "Asia/Dubai", label: "🇦🇪 UAE", name: "Dubai" },
-  { value: "Asia/Riyadh", label: "🇸🇦 Saudi Arabia", name: "Riyadh" },
-  { value: "Asia/Kuwait", label: "🇰🇼 Kuwait", name: "Kuwait" },
-  { value: "Asia/Qatar", label: "🇶🇦 Qatar", name: "Doha" },
-  { value: "Asia/Bahrain", label: "🇧🇭 Bahrain", name: "Manama" },
-  { value: "Asia/Muscat", label: "🇴🇲 Oman", name: "Muscat" },
-  { value: "Asia/Tehran", label: "🇮🇷 Iran", name: "Tehran" },
-  { value: "Asia/Baghdad", label: "🇮🇶 Iraq", name: "Baghdad" },
-  { value: "Asia/Jerusalem", label: "🇮🇱 Israel", name: "Jerusalem" },
-  { value: "Asia/Amman", label: "🇯🇴 Jordan", name: "Amman" },
-  { value: "Asia/Beirut", label: "🇱🇧 Lebanon", name: "Beirut" },
-  { value: "Asia/Damascus", label: "🇸🇾 Syria", name: "Damascus" },
-  { value: "Asia/Istanbul", label: "🇹🇷 Turkey", name: "Istanbul" },
-  
-  // South Asia
-  { value: "Asia/Kolkata", label: "🇮🇳 India", name: "Kolkata" },
-  { value: "Asia/Karachi", label: "🇵🇰 Pakistan", name: "Karachi" },
-  { value: "Asia/Dhaka", label: "🇧🇩 Bangladesh", name: "Dhaka" },
-  { value: "Asia/Colombo", label: "🇱🇰 Sri Lanka", name: "Colombo" },
-  { value: "Asia/Kathmandu", label: "🇳🇵 Nepal", name: "Kathmandu" },
-  { value: "Asia/Thimphu", label: "🇧🇹 Bhutan", name: "Thimphu" },
-  { value: "Asia/Rangoon", label: "🇲🇲 Myanmar", name: "Yangon" },
-  { value: "Asia/Kabul", label: "🇦🇫 Afghanistan", name: "Kabul" },
-  
-  // Central Asia
-  { value: "Asia/Tashkent", label: "🇺🇿 Uzbekistan", name: "Tashkent" },
-  { value: "Asia/Almaty", label: "🇰🇿 Kazakhstan", name: "Almaty" },
-  { value: "Asia/Bishkek", label: "🇰🇬 Kyrgyzstan", name: "Bishkek" },
-  { value: "Asia/Dushanbe", label: "🇹🇯 Tajikistan", name: "Dushanbe" },
-  { value: "Asia/Ashgabat", label: "🇹🇲 Turkmenistan", name: "Ashgabat" },
-  { value: "Asia/Baku", label: "🇦🇿 Azerbaijan", name: "Baku" },
-  { value: "Asia/Tbilisi", label: "🇬🇪 Georgia", name: "Tbilisi" },
-  { value: "Asia/Yerevan", label: "🇦🇲 Armenia", name: "Yerevan" },
-  
-  // Southeast Asia
-  { value: "Asia/Singapore", label: "🇸🇬 Singapore", name: "Singapore" },
-  { value: "Asia/Bangkok", label: "🇹🇭 Thailand", name: "Bangkok" },
-  { value: "Asia/Ho_Chi_Minh", label: "🇻🇳 Vietnam", name: "Ho Chi Minh" },
-  { value: "Asia/Manila", label: "🇵🇭 Philippines", name: "Manila" },
-  { value: "Asia/Jakarta", label: "🇮🇩 Indonesia (West)", name: "Jakarta" },
-  { value: "Asia/Makassar", label: "🇮🇩 Indonesia (Central)", name: "Makassar" },
-  { value: "Asia/Jayapura", label: "🇮🇩 Indonesia (East)", name: "Jayapura" },
-  { value: "Asia/Kuala_Lumpur", label: "🇲🇾 Malaysia", name: "Kuala Lumpur" },
-  { value: "Asia/Brunei", label: "🇧🇳 Brunei", name: "Bandar Seri Begawan" },
-  { value: "Asia/Vientiane", label: "🇱🇦 Laos", name: "Vientiane" },
-  { value: "Asia/Phnom_Penh", label: "🇰🇭 Cambodia", name: "Phnom Penh" },
-  { value: "Asia/Dili", label: "🇹🇱 East Timor", name: "Dili" },
-  
-  // East Asia
-  { value: "Asia/Tokyo", label: "🇯🇵 Japan", name: "Tokyo" },
-  { value: "Asia/Seoul", label: "🇰🇷 South Korea", name: "Seoul" },
-  { value: "Asia/Pyongyang", label: "🇰🇵 North Korea", name: "Pyongyang" },
-  { value: "Asia/Shanghai", label: "🇨🇳 China", name: "Shanghai" },
-  { value: "Asia/Hong_Kong", label: "🇭🇰 Hong Kong", name: "Hong Kong" },
-  { value: "Asia/Taipei", label: "🇹🇼 Taiwan", name: "Taipei" },
-  { value: "Asia/Macau", label: "🇲🇴 Macau", name: "Macau" },
-  { value: "Asia/Ulaanbaatar", label: "🇲🇳 Mongolia", name: "Ulaanbaatar" },
-  
-  // Russian Asia
-  { value: "Asia/Yekaterinburg", label: "🇷🇺 Russia (Ural)", name: "Yekaterinburg" },
-  { value: "Asia/Novosibirsk", label: "🇷🇺 Russia (Siberia)", name: "Novosibirsk" },
-  { value: "Asia/Krasnoyarsk", label: "🇷🇺 Russia (Krasnoyarsk)", name: "Krasnoyarsk" },
-  { value: "Asia/Irkutsk", label: "🇷🇺 Russia (Irkutsk)", name: "Irkutsk" },
-  { value: "Asia/Vladivostok", label: "🇷🇺 Russia (Far East)", name: "Vladivostok" },
-  
-  // Popular International (for reference)
-  { value: "America/New_York", label: "🇺🇸 New York", name: "New York" },
-  { value: "Europe/London", label: "🇬🇧 London", name: "London" },
-  { value: "Europe/Paris", label: "🇫🇷 Paris", name: "Paris" },
-   { value: "Africa/Cairo", label: "🇪🇬 Egypt", name: "Cairo" }
-];
+  const timezoneOptions = [
+    // Middle East Timezones
+    { value: "Asia/Dubai", label: "🇦🇪 UAE", name: "Dubai" },
+    { value: "Asia/Riyadh", label: "🇸🇦 Saudi Arabia", name: "Riyadh" },
+    { value: "Asia/Kuwait", label: "🇰🇼 Kuwait", name: "Kuwait" },
+    { value: "Asia/Qatar", label: "🇶🇦 Qatar", name: "Doha" },
+    { value: "Asia/Bahrain", label: "🇧🇭 Bahrain", name: "Manama" },
+    { value: "Asia/Muscat", label: "🇴🇲 Oman", name: "Muscat" },
+    { value: "Asia/Tehran", label: "🇮🇷 Iran", name: "Tehran" },
+    { value: "Asia/Baghdad", label: "🇮🇶 Iraq", name: "Baghdad" },
+    { value: "Asia/Jerusalem", label: "🇮🇱 Israel", name: "Jerusalem" },
+    { value: "Asia/Amman", label: "🇯🇴 Jordan", name: "Amman" },
+    { value: "Asia/Beirut", label: "🇱🇧 Lebanon", name: "Beirut" },
+    { value: "Asia/Damascus", label: "🇸🇾 Syria", name: "Damascus" },
+    { value: "Asia/Istanbul", label: "🇹🇷 Turkey", name: "Istanbul" },
+
+    // South Asia
+    { value: "Asia/Kolkata", label: "🇮🇳 India", name: "Kolkata" },
+    { value: "Asia/Karachi", label: "🇵🇰 Pakistan", name: "Karachi" },
+    { value: "Asia/Dhaka", label: "🇧🇩 Bangladesh", name: "Dhaka" },
+    { value: "Asia/Colombo", label: "🇱🇰 Sri Lanka", name: "Colombo" },
+    { value: "Asia/Kathmandu", label: "🇳🇵 Nepal", name: "Kathmandu" },
+    { value: "Asia/Thimphu", label: "🇧🇹 Bhutan", name: "Thimphu" },
+    { value: "Asia/Rangoon", label: "🇲🇲 Myanmar", name: "Yangon" },
+    { value: "Asia/Kabul", label: "🇦🇫 Afghanistan", name: "Kabul" },
+
+    // Central Asia
+    { value: "Asia/Tashkent", label: "🇺🇿 Uzbekistan", name: "Tashkent" },
+    { value: "Asia/Almaty", label: "🇰🇿 Kazakhstan", name: "Almaty" },
+    { value: "Asia/Bishkek", label: "🇰🇬 Kyrgyzstan", name: "Bishkek" },
+    { value: "Asia/Dushanbe", label: "🇹🇯 Tajikistan", name: "Dushanbe" },
+    { value: "Asia/Ashgabat", label: "🇹🇲 Turkmenistan", name: "Ashgabat" },
+    { value: "Asia/Baku", label: "🇦🇿 Azerbaijan", name: "Baku" },
+    { value: "Asia/Tbilisi", label: "🇬🇪 Georgia", name: "Tbilisi" },
+    { value: "Asia/Yerevan", label: "🇦🇲 Armenia", name: "Yerevan" },
+
+    // Southeast Asia
+    { value: "Asia/Singapore", label: "🇸🇬 Singapore", name: "Singapore" },
+    { value: "Asia/Bangkok", label: "🇹🇭 Thailand", name: "Bangkok" },
+    { value: "Asia/Ho_Chi_Minh", label: "🇻🇳 Vietnam", name: "Ho Chi Minh" },
+    { value: "Asia/Manila", label: "🇵🇭 Philippines", name: "Manila" },
+    { value: "Asia/Jakarta", label: "🇮🇩 Indonesia (West)", name: "Jakarta" },
+    { value: "Asia/Makassar", label: "🇮🇩 Indonesia (Central)", name: "Makassar" },
+    { value: "Asia/Jayapura", label: "🇮🇩 Indonesia (East)", name: "Jayapura" },
+    { value: "Asia/Kuala_Lumpur", label: "🇲🇾 Malaysia", name: "Kuala Lumpur" },
+    { value: "Asia/Brunei", label: "🇧🇳 Brunei", name: "Bandar Seri Begawan" },
+    { value: "Asia/Vientiane", label: "🇱🇦 Laos", name: "Vientiane" },
+    { value: "Asia/Phnom_Penh", label: "🇰🇭 Cambodia", name: "Phnom Penh" },
+    { value: "Asia/Dili", label: "🇹🇱 East Timor", name: "Dili" },
+
+    // East Asia
+    { value: "Asia/Tokyo", label: "🇯🇵 Japan", name: "Tokyo" },
+    { value: "Asia/Seoul", label: "🇰🇷 South Korea", name: "Seoul" },
+    { value: "Asia/Pyongyang", label: "🇰🇵 North Korea", name: "Pyongyang" },
+    { value: "Asia/Shanghai", label: "🇨🇳 China", name: "Shanghai" },
+    { value: "Asia/Hong_Kong", label: "🇭🇰 Hong Kong", name: "Hong Kong" },
+    { value: "Asia/Taipei", label: "🇹🇼 Taiwan", name: "Taipei" },
+    { value: "Asia/Macau", label: "🇲🇴 Macau", name: "Macau" },
+    { value: "Asia/Ulaanbaatar", label: "🇲🇳 Mongolia", name: "Ulaanbaatar" },
+
+    // Russian Asia
+    { value: "Asia/Yekaterinburg", label: "🇷🇺 Russia (Ural)", name: "Yekaterinburg" },
+    { value: "Asia/Novosibirsk", label: "🇷🇺 Russia (Siberia)", name: "Novosibirsk" },
+    { value: "Asia/Krasnoyarsk", label: "🇷🇺 Russia (Krasnoyarsk)", name: "Krasnoyarsk" },
+    { value: "Asia/Irkutsk", label: "🇷🇺 Russia (Irkutsk)", name: "Irkutsk" },
+    { value: "Asia/Vladivostok", label: "🇷🇺 Russia (Far East)", name: "Vladivostok" },
+
+    // Popular International (for reference)
+    { value: "America/New_York", label: "🇺🇸 New York", name: "New York" },
+    { value: "Europe/London", label: "🇬🇧 London", name: "London" },
+    { value: "Europe/Paris", label: "🇫🇷 Paris", name: "Paris" },
+    { value: "Africa/Cairo", label: "🇪🇬 Egypt", name: "Cairo" }
+  ];
 
   // Get current timezone info
   const currentTimezoneInfo = timezoneOptions.find(tz => tz.value === timezone);
@@ -136,14 +136,14 @@ const timezoneOptions = [
 
       {/* Calendar Section */}
       <div className="w-full md:w-1/3">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-sm font-bold">Select a Date & Time</h3>
-          <div className="flex items-center gap-2">
+        <div className="flex flex-row sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+          <h3 className="text-sm md:text-base font-bold">Select a Date & Time</h3>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             {/* Timezone Selector */}
             <select
               value={timezone}
               onChange={(e) => handleTimezoneChange(e.target.value)}
-              className="bg-black border border-gray-700 px-2 py-1 rounded-md text-xs"
+              className="w-full sm:w-auto bg-black border border-gray-700 px-3 py-2 rounded-md text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             >
               {timezoneOptions.map((tz) => (
                 <option key={tz.value} value={tz.value}>
@@ -151,28 +151,11 @@ const timezoneOptions = [
                 </option>
               ))}
             </select>
-            
-            {/* Time Format Toggle */}
-            <div className="bg-black border border-gray-700 rounded-md flex">
-              <button
-                onClick={() => setTimeFormat('12h')}
-                className={`px-2 py-1 text-xs rounded-l-md transition-colors ${
-                  timeFormat === '12h' ? 'bg-blue-600 text-white' : 'text-gray-400'
-                }`}
-              >
-                12h
-              </button>
-              <button
-                onClick={() => setTimeFormat('24h')}
-                className={`px-2 py-1 text-xs rounded-r-md transition-colors ${
-                  timeFormat === '24h' ? 'bg-blue-600 text-white' : 'text-gray-400'
-                }`}
-              >
-                24h
-              </button>
-            </div>
+
+
           </div>
         </div>
+
 
         {/* Current timezone display */}
         <div className="mb-3 text-xs text-gray-400">
@@ -243,10 +226,9 @@ const timezoneOptions = [
                   if (isClickable) setSelectedDate(day);
                 }}
                 className={`text-sm font-medium px-4 py-2 rounded-xl transition-all duration-200
-                  ${
-                    isSelected
-                      ? "bg-white text-black font-bold"
-                      : isClickable
+                  ${isSelected
+                    ? "bg-white text-black font-bold"
+                    : isClickable
                       ? "bg-white-700 text-white hover:bg-white hover:text-black border border-green-500"
                       : "bg-gray-900 text-gray-600 cursor-not-allowed opacity-50"
                   }`}
@@ -288,12 +270,11 @@ const timezoneOptions = [
                   }
                 }}
                 className={`py-2 w-full text-sm rounded-md border border-gray-700 transition-all flex justify-center items-center gap-2
-                  ${
-                    selectedDate && slot
-                      ? selectedTime === slot
-                        ? "bg-blue-600 text-white"
-                        : "bg-black text-white hover:bg-blue-700"
-                      : "opacity-50 cursor-not-allowed"
+                  ${selectedDate && slot
+                    ? selectedTime === slot
+                      ? "bg-blue-600 text-white"
+                      : "bg-black text-white hover:bg-blue-700"
+                    : "opacity-50 cursor-not-allowed"
                   }`}
               >
                 <span className="w-2 h-2 bg-green-400 rounded-full inline-block"></span>
