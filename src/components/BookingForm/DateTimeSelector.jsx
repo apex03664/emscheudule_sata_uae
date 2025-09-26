@@ -96,8 +96,7 @@ const timezoneOptions = [
   { value: "America/New_York", label: "🇺🇸 New York", name: "New York" },
   { value: "Europe/London", label: "🇬🇧 London", name: "London" },
   { value: "Europe/Paris", label: "🇫🇷 Paris", name: "Paris" },
-  { value: "Australia/Sydney", label: "🇦🇺 Sydney", name: "Sydney" },
-  { value: "Africa/Cairo", label: "🇪🇬 Egypt", name: "Cairo" }
+   { value: "Africa/Cairo", label: "🇪🇬 Egypt", name: "Cairo" }
 ];
 
   // Get current timezone info
