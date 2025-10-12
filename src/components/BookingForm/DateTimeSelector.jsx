@@ -365,7 +365,7 @@ const DateTimeSelector = ({
             ))
           ) : (
             <div className="border border-red-600 text-red-500 px-4 py-6 rounded text-center text-sm">
-              <p>No slots available for selected date.</p>
+              <p>No slots selected</p>
               <p className="text-xs mt-2 text-gray-400">
                 Times will be shown in {getTimezoneAbbr(timezone)} timezone
               </p>
