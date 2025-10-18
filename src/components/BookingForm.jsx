@@ -172,46 +172,56 @@ const BookingForm = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!selectedDate || !selectedTime) {
-      return toast.error("📅 Please select a date and time.");
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!selectedDate || !selectedTime) {
+    return toast.error("📅 Please select a date and time.");
+  }
+
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+  if (!emailValid) return toast.error("📧 Enter a valid email address");
+
+  const dateStr = format(selectedDate, "yyyy-MM-dd");
+  const slotList = dateSlotMap[dateStr] || [];
+  const selectedSlotObj = slotList.find((s) => s.displayTime === selectedTime);
+  
+  if (!selectedSlotObj) {
+    return toast.error("❌ Selected time is invalid");
+  }
+
+  try {
+    console.log('📤 UAE Booking:', {
+      userTime: selectedTime,
+      userTimezone,
+      timeSlotUTC: selectedSlotObj.timeUTC,
+      dateUTC: selectedSlotObj.userDateObj.toISOString()
+    });
+
+    const response = await bookAppointment({
+      ...form,
+      date: dateStr,
+      program: "ISRO MISSIONS WORKSHOP 5TH TO 9TH SATA",
+      time: selectedTime, // User's local time (for display)
+      dateUTC: selectedSlotObj.userDateObj.toISOString(), // ✅ UTC date
+      timeSlotUTC: selectedSlotObj.timeUTC, // ✅ UTC time (e.g., "16:30-17:30")
+      timezone: userTimezone, // User's timezone (e.g., "Asia/Dubai")
+      counselorEmail: selectedSlotObj.counselorEmail,
+      counselorId: selectedSlotObj.counselorId,
+    });
+
+    if (response.success || response.booking?._id) {
+      setShowSuccess(true);
+      toast.success(`✅ Booking confirmed for ${selectedTime} (${userTimezone})!`);
+      resetForm();
+    } else {
+      toast.error(response);
     }
+  } catch (err) {
+    console.error("Booking error:", err);
+    toast.error(err.message || err);
+  }
+};
 
-    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
-    if (!emailValid) return toast.error("📧 Enter a valid email address");
-
-    const dateStr = format(selectedDate, "yyyy-MM-dd");
-    const slotList = dateSlotMap[dateStr] || [];
-    const selectedSlotObj = slotList.find((s) => s.displayTime === selectedTime);
-    
-    if (!selectedSlotObj) {
-      return toast.error("❌ Selected time is invalid");
-    }
-
-    try {
-      const response = await bookAppointment({
-        ...form,
-        date: dateStr,
-        program: "ISRO MISSIONS WORKSHOP 5TH TO 9TH SATA",
-        time: selectedTime,
-        timezone: userTimezone,
-        counselorEmail: selectedSlotObj.counselorEmail,
-        counselorId: selectedSlotObj.counselorId,
-      });
-
-      if (response.success || response.booking?._id) {
-        setShowSuccess(true);
-        toast.success(`✅ Booking confirmed!`);
-        resetForm();
-      } else {
-        toast.error(response);
-      }
-    } catch (err) {
-      console.error("Booking error:", err);
-      toast.error(err.message || err);
-    }
-  };
 
   const resetForm = () => {
     setForm({
