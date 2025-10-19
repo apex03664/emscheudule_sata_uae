@@ -18,7 +18,7 @@ const RegistrationForm = ({
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
+   
   const detectLocation = async () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(

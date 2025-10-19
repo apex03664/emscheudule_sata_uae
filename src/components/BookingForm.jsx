@@ -60,12 +60,14 @@ const BookingForm = () => {
   const batchOptions = useMemo(() => {
     const options = [];
     if (currentBatch !== null && currentBatch > 0) {
+      options.push(currentBatch);
       options.push(currentBatch - 1);
       options.push(currentBatch - 2);
     }
-    return options.length > 0 ? options : [99, 98]; // Fallback
+    return   options  ; // Fallback
   }, [currentBatch]);
-
+  console.log(batchOptions);
+  
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -88,6 +90,8 @@ const BookingForm = () => {
     if (batchOptions.length > 0) {
       setForm((prev) => ({ ...prev, batchNo: batchOptions[0].toString() }));
     }
+    console.log(currentBatch);
+    
   }, [currentBatch]);
 
   useEffect(() => {
@@ -231,7 +235,7 @@ const BookingForm = () => {
       location: "",
       grade: "",
       countryCode: "+971",
-      batchNo: batchOptions[0]?.toString() || "99",
+      batchNo: batchOptions[0]?.toString() ,
       parentConfirmed: false,
     });
     setSelectedDate(null);
