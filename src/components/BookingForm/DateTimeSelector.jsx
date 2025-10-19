@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { format } from "date-fns";
+import dayjs from "dayjs";
+import TimezoneSelect from 'react-timezone-select';
 
 const DateTimeSelector = ({
   timezone,
@@ -14,17 +15,32 @@ const DateTimeSelector = ({
 }) => {
   const [showAllDates, setShowAllDates] = useState(false);
 
+  // ✅ Filter dates without timezone shift
   const availableDates = Object.keys(dateSlotMap)
     .sort()
     .filter(dateStr => {
-      const date = new Date(dateStr);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return date >= today;
+      const date = dayjs(dateStr).startOf('day');
+      const today = dayjs().startOf('day');
+      return date.isAfter(today) || date.isSame(today);
     });
 
   const displayedDates = showAllDates ? availableDates : availableDates.slice(0, 8);
-  const selectedDateStr = selectedDate ? format(selectedDate, "yyyy-MM-dd") : null;
+  
+  // ✅ Format date without timezone shift
+  const selectedDateStr = selectedDate ? dayjs(selectedDate).format("YYYY-MM-DD") : null;
+
+  // ✅ Get timezone display name
+  const getTimezoneDisplayName = (tz) => {
+    if (typeof tz === 'string') {
+      const parts = tz.split('/');
+      return parts[parts.length - 1].replace(/_/g, ' ');
+    }
+    // Handle timezone object from react-timezone-select
+    if (tz && tz.label) {
+      return tz.label;
+    }
+    return tz;
+  };
 
   return (
     <div className="min-h-screen bg-[#0A1F1F] py-4 px-4 sm:py-8 sm:px-6">
@@ -46,27 +62,75 @@ const DateTimeSelector = ({
                 Book your FREE counselling session (1st-9th Grade)
               </p>
             </div>
-          </div> 
+          </div>
 
-          {/* Timezone */}
-          <div className="flex items-center gap-3 bg-[#0A1F1F] rounded-lg p-3 border border-[#1A5252]">
-            <span className="text-xl">🌍</span>
-            <div className="flex-1">
-              <p className="text-xs text-gray-500">Timezone</p>
-              <p className="text-sm text-white font-medium">{timezone.split('/')[1]}</p>
-            </div>
-            <select
+          {/* ✅ React Timezone Select - All Timezones Included */}
+          <div className="bg-[#0A1F1F] rounded-lg p-3 border border-[#1A5252]">
+            <label className="block mb-2">
+              <span className="text-xs text-gray-500">🌍 Your Timezone</span>
+            </label>
+            <TimezoneSelect
               value={timezone}
-              onChange={(e) => setTimezone(e.target.value)}
-              className="bg-[#1A5252] text-white text-sm px-3 py-2 rounded-lg border border-[#2D6A6A] focus:outline-none focus:border-[#14B8A6]"
-            >
-              <option value="Asia/Dubai">🇦🇪 Dubai</option>
-              <option value="Asia/Kolkata">🇮🇳 India</option>
-              <option value="America/New_York">🇺🇸 New York</option>
-              <option value="Europe/London">🇬🇧 London</option>
-              <option value="Asia/Singapore">🇸🇬 Singapore</option>
-              <option value="Australia/Sydney">🇦🇺 Sydney</option>
-            </select>
+              onChange={(tz) => {
+                // ✅ Handle both string and object return types
+                const newTimezone = typeof tz === 'object' && tz.value ? tz.value : tz;
+                console.log('🌍 Timezone changed to:', newTimezone);
+                setTimezone(newTimezone);
+                // Reset selections when timezone changes
+                setSelectedDate(null);
+                setSelectedTime("");
+              }}
+              // ✅ Custom styling for dark theme
+              styles={{
+                control: (provided, state) => ({
+                  ...provided,
+                  backgroundColor: '#1A5252',
+                  borderColor: state.isFocused ? '#14B8A6' : '#2D6A6A',
+                  color: 'white',
+                  boxShadow: state.isFocused ? '0 0 0 1px #14B8A6' : 'none',
+                  '&:hover': {
+                    borderColor: '#14B8A6',
+                  },
+                }),
+                menu: (provided) => ({
+                  ...provided,
+                  backgroundColor: '#0F3A3A',
+                  border: '1px solid #1A5252',
+                }),
+                option: (provided, state) => ({
+                  ...provided,
+                  backgroundColor: state.isFocused 
+                    ? '#14B8A6' 
+                    : state.isSelected 
+                    ? '#0F766E' 
+                    : '#0F3A3A',
+                  color: 'white',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    backgroundColor: '#14B8A6',
+                  },
+                }),
+                singleValue: (provided) => ({
+                  ...provided,
+                  color: 'white',
+                }),
+                input: (provided) => ({
+                  ...provided,
+                  color: 'white',
+                }),
+                placeholder: (provided) => ({
+                  ...provided,
+                  color: '#9CA3AF',
+                }),
+              }}
+            />
+          </div>
+
+          {/* ✅ Timezone info banner */}
+          <div className="mt-3 p-2 bg-[#0A1F1F]/50 rounded-lg border border-[#1A5252]/50">
+            <p className="text-xs text-gray-400 text-center">
+              ⏰ All times are shown in <span className="text-[#14B8A6] font-medium">{getTimezoneDisplayName(timezone)}</span>
+            </p>
           </div>
         </div>
 
@@ -92,15 +156,17 @@ const DateTimeSelector = ({
 
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                 {displayedDates.map((dateStr) => {
-                  const date = new Date(dateStr);
-                  const slotsCount = dateSlotMap[dateStr]?.length || 0;
+                  // ✅ Parse date without timezone shift
+                  const date = dayjs(dateStr);
                   const isSelected = selectedDateStr === dateStr;
 
                   return (
                     <button
                       key={dateStr}
                       onClick={() => {
-                        setSelectedDate(date);
+                        // ✅ Create local date object
+                        const [year, month, day] = dateStr.split('-').map(Number);
+                        setSelectedDate(new Date(year, month - 1, day));
                         setSelectedTime("");
                       }}
                       className={`p-3 rounded-lg border transition-all ${
@@ -111,15 +177,14 @@ const DateTimeSelector = ({
                     >
                       <div className="text-center">
                         <div className="text-[10px] text-gray-400 mb-0.5 uppercase">
-                          {date.toLocaleString("en-US", { month: "short" })}
+                          {date.format('MMM')}
                         </div>
                         <div className={`text-xl font-bold mb-0.5 ${isSelected ? "text-white" : "text-white"}`}>
-                          {date.getDate()}
+                          {date.format('D')}
                         </div>
                         <div className={`text-[10px] ${isSelected ? "text-teal-200" : "text-gray-500"}`}>
-                          {date.toLocaleString("en-US", { weekday: "short" })}
+                          {date.format('ddd')}
                         </div>
-                        
                       </div>
                     </button>
                   );
@@ -157,7 +222,7 @@ const DateTimeSelector = ({
               ) : timeSlots.length === 0 ? (
                 <div className="text-center py-12 bg-[#0F3A3A] rounded-xl border border-[#1A5252]">
                   <div className="text-4xl mb-2">⏰</div>
-                  <p className="text-sm text-gray-400">No slots available</p>
+                  <p className="text-sm text-gray-400">No slots available for this date</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -189,23 +254,23 @@ const DateTimeSelector = ({
                     );
                   })}
 
+                  {/* ✅ Confirmation section */}
                   {selectedTime && (
                     <div className="pt-4">
                       <div className="mb-4 p-4 bg-[#0F3A3A] rounded-xl border border-[#1A5252]">
-                        <p className="text-xs text-gray-500 mb-1">Selected</p>
+                        <p className="text-xs text-gray-500 mb-1">Selected Session</p>
                         <p className="text-white font-medium">
-                          {selectedDate.toLocaleDateString("en-GB", { 
-                            day: "numeric", 
-                            month: "long",
-                            year: "numeric"
-                          })}
+                          {dayjs(selectedDate).format('D MMMM YYYY')}
                         </p>
                         <p className="text-[#14B8A6] font-semibold text-lg mt-1">{selectedTime}</p>
+                        <p className="text-xs text-gray-400 mt-2">
+                          🌍 {getTimezoneDisplayName(timezone)}
+                        </p>
                       </div>
 
                       <button
                         onClick={() => setShowForm(true)}
-                        className="w-full py-4 bg-[#14B8A6] hover:bg-[#0F766E] text-white font-semibold rounded-xl transition-all"
+                        className="w-full py-4 bg-[#14B8A6] hover:bg-[#0F766E] text-white font-semibold rounded-xl transition-all shadow-lg shadow-[#14B8A6]/20"
                       >
                         Continue to Registration →
                       </button>
