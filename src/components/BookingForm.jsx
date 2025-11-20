@@ -63,6 +63,10 @@ const BookingForm = () => {
       options.push(currentBatch);
       options.push(currentBatch - 1);
       options.push(currentBatch - 2);
+       options.push(currentBatch - 3);
+       options.push(currentBatch - 4);
+             options.push(currentBatch - 5);
+
     }
     return   options  ; // Fallback
   }, [currentBatch]);
